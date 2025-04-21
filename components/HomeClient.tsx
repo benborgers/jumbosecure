@@ -19,9 +19,20 @@ export default function HomeClient() {
       <div className="w-full max-w-2xl flex flex-col gap-4 mt-12">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Posts</h2>
-          <Link href="/posts/new">
-            <Button color="blue">New Post</Button>
-          </Link>
+          <div className="flex gap-2 items-center">
+            <Link href="/posts/new">
+              <Button color="blue">New Post</Button>
+            </Link>
+            <Button
+              color="red"
+              onClick={async () => {
+                await fetch("/api/logout", { method: "POST" });
+                window.location.href = "/login";
+              }}
+            >
+              Sign Out
+            </Button>
+          </div>
         </div>
         <ul className="flex flex-col gap-2">
           {posts.map((post) => (
