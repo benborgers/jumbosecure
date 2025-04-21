@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { validateToken } from "@/lib/token";
+import db from "@/lib/db";
+import { id, lookup } from "@instantdb/admin";
 
 export async function POST(request: Request) {
   const cookieStore = await cookies();
@@ -9,7 +11,18 @@ export async function POST(request: Request) {
   if (!email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  // Just echo back the post for now
+
   const { title, body } = await request.json();
-  return NextResponse.json({ id: "dummy", title, body }, { status: 201 });
+
+  const newId = id();
+
+  await db.transact([
+    db.tx.posts[newId].update({
+      title,
+      body,
+    }),
+    db.tx.posts[newId].link({ account: lookup("email", email) }),
+  ]);
+
+  return NextResponse.json({ success: true }, { status: 201 });
 }

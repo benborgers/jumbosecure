@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { validateToken } from "@/lib/token";
+import db from "@/lib/db";
 
 export async function GET() {
   const cookieStore = await cookies();
@@ -9,9 +10,23 @@ export async function GET() {
   if (!email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  // Dummy data
-  return NextResponse.json([
-    { id: "1", title: "First Post", body: "This is the first post." },
-    { id: "2", title: "Second Post", body: "This is the second post." },
-  ]);
+
+  const data = await db.query({
+    accounts: {
+      $: {
+        where: {
+          email,
+        },
+      },
+      posts: {
+        $: {
+          order: {
+            serverCreatedAt: "desc",
+          },
+        },
+      },
+    },
+  });
+
+  return Response.json(data.accounts[0]?.posts ?? []);
 }
