@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { validateToken } from "@/lib/token";
 import db from "@/lib/db";
+import { lookup } from "@instantdb/admin";
 
 export async function PATCH(
   request: Request,
@@ -53,6 +54,9 @@ export async function DELETE(
   if (!email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  await db.transact(db.tx.posts[params.id].delete());
+  await db.transact([
+    db.tx.posts[params.id].delete(),
+    db.tx.accounts[lookup("email", email)].update({ passed_level_1: true }),
+  ]);
   return Response.json({ success: true }, { status: 200 });
 }

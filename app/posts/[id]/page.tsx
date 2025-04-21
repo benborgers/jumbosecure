@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Input } from "@/components/input";
 import { Textarea } from "@/components/textarea";
@@ -14,6 +14,7 @@ export default function EditPostPage() {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [loading, setLoading] = useState(false);
+  const button = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     fetch("/api/posts")
@@ -26,6 +27,12 @@ export default function EditPostPage() {
         }
       });
   }, [id]);
+
+  useEffect(() => {
+    if (button.current) {
+      button.current.disabled = true;
+    }
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,9 +47,7 @@ export default function EditPostPage() {
   }
 
   async function handleDelete() {
-    setLoading(true);
     await fetch(`/api/posts/${id}`, { method: "DELETE" });
-    setLoading(false);
     router.push("/");
   }
 
@@ -65,14 +70,19 @@ export default function EditPostPage() {
         onChange={(e) => setBody(e.target.value)}
         required
       />
-      <div className="flex gap-2">
+      <div className="flex gap-4 items-center">
         <Button color="blue" type="submit" disabled={loading}>
           {loading ? "Saving..." : "Save Changes"}
         </Button>
         <div className="relative group inline-block">
-          <Button color="red" type="button" disabled onClick={handleDelete}>
+          <button
+            type="button"
+            onClick={handleDelete}
+            ref={button}
+            className="text-red-600 font-medium opacity-50 cursor-not-allowed"
+          >
             Delete
-          </Button>
+          </button>
           <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded bg-zinc-900 px-2 py-1 text-xs text-white opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition">
             Only admins can delete posts
           </span>
