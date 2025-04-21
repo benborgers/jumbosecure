@@ -21,13 +21,27 @@ export async function POST(request: Request) {
 
   const token = encrypt(email);
 
-  await db.transact(
-    db.tx.accounts[lookup("email", email)].update({
-      passed_level_1: false,
-      passed_level_2: false,
-      passed_level_3: false,
-    })
-  );
+  const data = await db.query({
+    accounts: {
+      $: {
+        where: {
+          email: email,
+        },
+      },
+    },
+  });
+
+  const accountDoesNotExistYet = data.accounts.length === 0;
+
+  if (accountDoesNotExistYet) {
+    await db.transact(
+      db.tx.accounts[lookup("email", email)].update({
+        passed_level_1: false,
+        passed_level_2: false,
+        passed_level_3: false,
+      })
+    );
+  }
 
   const response = NextResponse.json({ success: true }, { status: 200 });
   response.cookies.set("jumbosecure_token", token, {

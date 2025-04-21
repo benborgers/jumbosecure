@@ -1,52 +1,105 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { AuthLayout } from "./auth-layout";
 import { Heading } from "./heading";
 import { Input } from "./input";
 import { Button } from "./button";
 import { Link } from "./link";
+import { toast, Toaster } from "sonner";
 
 export default function ForgotPasswordPage() {
-  const [step, setStep] = useState<"email" | "otp" | "password" | "success">(
-    "email"
-  );
   const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState("");
-  const [password, setPassword] = useState("");
-  // For demo: hardcoded correct OTP
-  const CORRECT_OTP = "123456";
+  const [code, setCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [step, setStep] = useState(1);
+  const [error, setError] = useState("");
+  const router = useRouter();
 
-  async function handleSendLink(e: React.FormEvent) {
+  const handleGenerateCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Stub: pretend to send email
-    setStep("otp");
-  }
+    setError("");
+    try {
+      const response = await fetch("/api/forgot-password/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
 
-  async function handleVerifyOtp(e: React.FormEvent) {
-    e.preventDefault();
-    if (otp === CORRECT_OTP) {
-      // Right OTP callback
-      setStep("password");
-    } else {
-      // Wrong OTP callback (user will add toast later)
-      // For now, just clear OTP
-      setOtp("");
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success(
+          `You've got mail! Your password reset code is: ${data.token}`
+        );
+        console.log(data);
+        setStep(2);
+      } else {
+        setError(data.error || "An error occurred");
+      }
+    } catch {
+      setError("An unexpected error occurred");
     }
-  }
+  };
 
-  async function handleChangePassword(e: React.FormEvent) {
+  const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Stub: pretend to change password
-    setStep("success");
-  }
+    setError("");
+    try {
+      const response = await fetch("/api/forgot-password/verify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setStep(3);
+      } else {
+        setError(data.error || "An error occurred");
+      }
+    } catch {
+      setError("An unexpected error occurred");
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    try {
+      const response = await fetch("/api/forgot-password/change", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-From-JumboSecure-Frontend": "true",
+        },
+        body: JSON.stringify({ email, newPassword }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        router.push("/login");
+      } else {
+        setError(data.error || "An error occurred");
+      }
+    } catch {
+      setError("An unexpected error occurred");
+    }
+  };
 
   return (
     <AuthLayout>
-      {step === "email" && (
+      {step === 1 && (
         <form
           className="flex flex-col gap-6 w-80 max-w-full"
-          onSubmit={handleSendLink}
+          onSubmit={handleGenerateCode}
         >
           <Heading level={1} className="mb-2">
             Forgot password
@@ -58,8 +111,9 @@ export default function ForgotPasswordPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+          {error && <div className="text-red-600 text-sm">{error}</div>}
           <Button type="submit" className="mt-2">
-            Send reset link
+            Generate Code
           </Button>
           <div className="text-sm text-center mt-2">
             <Link href="/login" className="text-blue-600 hover:underline">
@@ -68,27 +122,30 @@ export default function ForgotPasswordPage() {
           </div>
         </form>
       )}
-      {step === "otp" && (
+
+      {step === 2 && (
         <form
           className="flex flex-col gap-6 w-80 max-w-full"
-          onSubmit={handleVerifyOtp}
+          onSubmit={handleVerifyCode}
         >
           <Heading level={1} className="mb-2">
-            Enter OTP
+            Enter verification code
           </Heading>
           <Input
             type="text"
-            placeholder="One-time code"
+            placeholder="Verification code"
             required
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
           />
+          {error && <div className="text-red-600 text-sm">{error}</div>}
           <Button type="submit" className="mt-2">
-            Verify code
+            Verify Code
           </Button>
         </form>
       )}
-      {step === "password" && (
+
+      {step === 3 && (
         <form
           className="flex flex-col gap-6 w-80 max-w-full"
           onSubmit={handleChangePassword}
@@ -100,27 +157,16 @@ export default function ForgotPasswordPage() {
             type="password"
             placeholder="New password"
             required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
           />
+          {error && <div className="text-red-600 text-sm">{error}</div>}
           <Button type="submit" className="mt-2">
-            Change password
+            Change Password
           </Button>
         </form>
       )}
-      {step === "success" && (
-        <div className="flex flex-col gap-6 w-80 max-w-full items-center">
-          <Heading level={1} className="mb-2">
-            Password changed!
-          </Heading>
-          <div className="text-center text-zinc-700 dark:text-zinc-300">
-            Your password has been changed. You can now log in.
-          </div>
-          <Link href="/login" className="text-blue-600 hover:underline">
-            Back to login
-          </Link>
-        </div>
-      )}
+      <Toaster />
     </AuthLayout>
   );
 }
