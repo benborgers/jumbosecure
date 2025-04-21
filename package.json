@@ -6,10 +6,12 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "instant": "npx instant-cli@latest push schema"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.2",
+    "@instantdb/admin": "^0.18.7",
     "clsx": "^2.1.1",
     "next": "15.3.1",
     "react": "^19.0.0",
