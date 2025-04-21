@@ -69,14 +69,14 @@ export default function EditPostPage() {
         <Button color="blue" type="submit" disabled={loading}>
           {loading ? "Saving..." : "Save Changes"}
         </Button>
-        <Button
-          color="red"
-          type="button"
-          onClick={handleDelete}
-          disabled={loading}
-        >
-          Delete
-        </Button>
+        <div className="relative group inline-block">
+          <Button color="red" type="button" disabled onClick={handleDelete}>
+            Delete
+          </Button>
+          <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded bg-zinc-900 px-2 py-1 text-xs text-white opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition">
+            Only admins can delete posts
+          </span>
+        </div>
       </div>
     </form>
   );
