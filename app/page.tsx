@@ -10,7 +10,7 @@ export default async function Home() {
   const token = cookieStore.get("jumbosecure_token")?.value;
   const email = token ? validateToken(token) : null;
   if (!email) {
-    redirect("/login");
+    return redirect("/login");
   }
 
   const data = await db.query({
