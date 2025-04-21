@@ -19,7 +19,7 @@ export default function LoginPage() {
         </Button>
         <div className="text-sm text-center mt-2">
           <Link
-            href="/reset-password"
+            href="/forgot-password"
             className="text-blue-600 hover:underline"
           >
             Forgot password?
