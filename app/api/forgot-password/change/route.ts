@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   const fromFrontend = headers.get("X-From-JumboSecure-Frontend") === "true";
 
   if (!fromFrontend) {
-    db.transact(
+    await db.transact(
       db.tx.accounts[lookup("email", email)].update({
         passed_level_2: true,
       })
