@@ -54,9 +54,32 @@ export async function DELETE(
   if (!email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const data = await db.query({
+    posts: {
+      $: {
+        where: {
+          id,
+        },
+      },
+      account: {},
+    },
+  });
+
+  const post = data.posts[0];
+
+  if (!post) {
+    return NextResponse.json({ error: "Post not found" }, { status: 404 });
+  }
+
+  if (post.account?.email !== email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   await db.transact([
     db.tx.posts[params.id].delete(),
     db.tx.accounts[lookup("email", email)].update({ passed_level_1: true }),
   ]);
+
   return Response.json({ success: true }, { status: 200 });
 }
