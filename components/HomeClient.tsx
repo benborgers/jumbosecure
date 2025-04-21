@@ -15,7 +15,7 @@ export default function HomeClient() {
   }, []);
 
   return (
-    <div className="min-h-screen p-8 pb-20 flex flex-col items-center font-[family-name:var(--font-geist-sans)]">
+    <div className="p-8 pb-20 flex flex-col items-center font-[family-name:var(--font-geist-sans)]">
       <div className="w-full max-w-2xl flex flex-col gap-4 mt-12">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Posts</h2>
