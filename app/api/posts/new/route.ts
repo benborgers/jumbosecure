@@ -20,6 +20,7 @@ export async function POST(request: Request) {
     db.tx.posts[newId].update({
       title,
       body,
+      published: false,
     }),
     db.tx.posts[newId].link({ account: lookup("email", email) }),
   ]);

@@ -20,6 +20,7 @@ const _schema = i.schema({
     posts: i.entity({
       title: i.string(),
       body: i.string(),
+      published: i.boolean(),
     }),
   },
   links: {

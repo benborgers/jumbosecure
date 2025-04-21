@@ -38,8 +38,17 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { title, body } = await request.json();
+  const { title, body, published } = await request.json();
   await db.transact(db.tx.posts[id].update({ title, body }));
+
+  if (published !== undefined) {
+    await db.transact([
+      db.tx.posts[id].update({ published }),
+      db.tx.accounts[lookup("email", email)].update({
+        passed_level_3: true,
+      }),
+    ]);
+  }
 
   return Response.json({ success: true }, { status: 200 });
 }
