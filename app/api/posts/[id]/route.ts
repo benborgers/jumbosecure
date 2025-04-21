@@ -46,8 +46,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+
   const cookieStore = await cookies();
   const token = cookieStore.get("jumbosecure_token")?.value;
   const email = token ? validateToken(token) : null;
@@ -77,7 +79,7 @@ export async function DELETE(
   }
 
   await db.transact([
-    db.tx.posts[params.id].delete(),
+    db.tx.posts[id].delete(),
     db.tx.accounts[lookup("email", email)].update({ passed_level_1: true }),
   ]);
 
