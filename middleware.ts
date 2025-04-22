@@ -7,7 +7,7 @@ export function middleware() {
     now.toLocaleString("en-US", { timeZone: "America/New_York" })
   );
 
-  const cutoffDate = new Date("2025-04-21T20:25:00-04:00"); // -04:00 for EDT
+  const cutoffDate = new Date("2025-04-21T20:30:00-04:00"); // -04:00 for EDT
 
   // Compare timestamps
   const isBlocked = estTime.getTime() > cutoffDate.getTime();
