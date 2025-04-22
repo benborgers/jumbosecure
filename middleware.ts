@@ -18,7 +18,7 @@ export function middleware() {
   console.log("Cutoff timestamp:", cutoffDate.getTime());
   console.log("Is blocked:", isBlocked);
 
-  if (isBlocked) {
+  if (true) {
     // Return a maintenance page response
     return new NextResponse(
       "Since it's past 8:30pm, JumboSecure is gone.\n\nIf you'd like to keep playing with it, we might be able to bring it back (although not for points).",
