@@ -8,7 +8,7 @@ const emails = [
   "sarah@example.com",
   "holden@example.com",
   "avery@example.com",
-  "jiyoon@example.com",
+  "idil@example.com",
   "dan@example.com",
   "rebecca@example.com",
   "board@example.com",
